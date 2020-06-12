@@ -10,7 +10,7 @@ Swades(2004),Member1,3
 Company(2002),Member2,
 Deewaar(1975),Member2,3
 Dil Chahta Hai(2001),Member2,
-Gully Boy(2019),Member2,
+Gully Boy(2019),Member2,2.5
 Mr. India(1987),Member2,4
 Mughal-e-Azam(1960),Member2,3
 Sholay(1975),Member2,4
@@ -28,7 +28,7 @@ Deewaar(1975),Member4,
 Dil Chahta Hai(2001),Member4,4.5
 Gully Boy(2019),Member4,3
 Mr. India(1987),Member4,3
-Mughal-e-Azam(1960),Member4,
+Mughal-e-Azam(1960),Member4,3.5
 Sholay(1975),Member4,4
 Swades(2004),Member4,4
 Company(2002),Member5,2
