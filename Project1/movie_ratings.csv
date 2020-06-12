@@ -1,0 +1,49 @@
+Movie_Name,User_Name,Ratings
+Company(2002),Member1,
+Deewaar(1975),Member1,4.5
+Dil Chahta Hai(2001),Member1,4
+Gully Boy(2019),Member1,
+Mr. India(1987),Member1,3
+Mughal-e-Azam(1960),Member1,4.5
+Sholay(1975),Member1,5
+Swades(2004),Member1,3
+Company(2002),Member2,
+Deewaar(1975),Member2,3
+Dil Chahta Hai(2001),Member2,
+Gully Boy(2019),Member2,
+Mr. India(1987),Member2,4
+Mughal-e-Azam(1960),Member2,3
+Sholay(1975),Member2,4
+Swades(2004),Member2,
+Company(2002),Member3,5
+Deewaar(1975),Member3,
+Dil Chahta Hai(2001),Member3,4.5
+Gully Boy(2019),Member3,3
+Mr. India(1987),Member3,4.5
+Mughal-e-Azam(1960),Member3,4
+Sholay(1975),Member3,4
+Swades(2004),Member3,4
+Company(2002),Member4,4
+Deewaar(1975),Member4,
+Dil Chahta Hai(2001),Member4,4.5
+Gully Boy(2019),Member4,3
+Mr. India(1987),Member4,3
+Mughal-e-Azam(1960),Member4,
+Sholay(1975),Member4,4
+Swades(2004),Member4,4
+Company(2002),Member5,2
+Deewaar(1975),Member5,
+Dil Chahta Hai(2001),Member5,4.5
+Gully Boy(2019),Member5,2
+Mr. India(1987),Member5,3
+Mughal-e-Azam(1960),Member5,3
+Sholay(1975),Member5,4
+Swades(2004),Member5,3
+Company(2002),Member6,4.5
+Deewaar(1975),Member6,
+Dil Chahta Hai(2001),Member6,4.5
+Gully Boy(2019),Member6,4
+Mr. India(1987),Member6,2.5
+Mughal-e-Azam(1960),Member6,
+Sholay(1975),Member6,4
+Swades(2004),Member6,4
