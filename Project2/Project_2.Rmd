@@ -81,29 +81,20 @@ summary(movie_data)
 
 ## Transform Data
 
-I use `realRatingMatrix` to transform data on Matrix value .
+I used `realRatingMatrix` from 'recommenderlab' to transform data.
 
 ```{r}
+
 #### use pivot_wider to make a user matrix
 ratings_data$userId <- as.factor(ratings_data$userId)
-movie_data$movieId <- as.factor(movie_data$movieId)
-ratings_data<-subset(ratings_data, select=-timestamp)
 
 UI <- as(ratings_data, "realRatingMatrix")
-str(UI)
 dim(UI@data)
 ```
 
-#Users
+<span style="font-size:18px;"> First, I will look at the similarity between items. The more Yellow the cell is, the more similar two items are. Note that the diagonal is Red, since it’s comparing each items with itself. </span>
 
-```{r}
-#Users
-similarity_users <- similarity(UI[1:10, ], method = "cosine", which = "userId")
-
-# The more red the cell is, the more similar two users are. 
-image(as.matrix(similarity_users), main="User Similarity (cosine)")
-```
-Items
+### Items
 
 ```{r}
 #Items
@@ -112,63 +103,174 @@ similarity_items <- similarity(UI[,1:10], method = "cosine", which = "items")
 image(as.matrix(similarity_items), main="Items Similarity (cosine)")
 ```
 
+
+### Users
+
+<span style="font-size:18px;"> User based collaborative filtering algorithms are based on measuring the similarity between users.</span>
+<span style="font-size:18px;"> First, I will look at the similarity between users. The more yellow the cell is, the more similar two users are.</span>
+
+
+```{r}
+#Users
+similarity_users <- similarity(UI[1:10, ], method = "cosine", which = "userId")
+
+# The more red the cell is, the more similar two users are. 
+image(as.matrix(similarity_users), main="User Similarity (cosine)")
+```
+
+### Distribution of The Ratings
+
+```{r}
+#Distribution plot
+ratings_dis <- as.vector(UI@data)
+ratings_dis <- ratings_dis[ratings_dis != 0]
+ratings_dis <- as.data.frame(table(ratings_dis))
+
+ggplot(ratings_dis, aes(x = ratings_dis, y= Freq)) + 
+  geom_bar(stat= "identity") +
+  geom_text(aes(label=Freq), position=position_stack(vjust = 0.5), color="white", size=4)+
+  labs(y = "No. of Ratings", x = "Ratings") + ggtitle("Distribution of the ratings")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+Users who rated only a few movies their ratings might be biased, so I can remove that.
+```{r}
+movies <- UI[rowCounts(UI) > 50, colCounts(UI) > 
+    50]
+```
+
+In general, any ratings matrix, especially movie ratings matrix, is bound to have some bias. Some users may give higher ratings than others.
+
+To see the bias distribution of ratings, we will plot average rating per user.
+```{r}
+avg <- rowMeans(movies)
+ggplot() + aes(avg) + geom_histogram(binwidth = 0.1) + xlab("Average Rating") + 
+    ylab(" No. of Ratings")
+```
+We can see from the avg ratings distribution plot below that it varies a lot.
+
+recommender lab normalizes the data when building a model. Let us normalize the ratings and confirm that all averages are 0 now to see what kind of effect it has.
+
+```{r}
+movie_Normalization <- normalize(movies)
+avg <- round(rowMeans(movie_Normalization), 5)
+table(avg)
+```
+
+```{r}
+min_Items <- quantile(rowCounts(movies), 0.95)
+min_Users <- quantile(colCounts(movies), 0.95)
+
+image(movies[rowCounts(movies) > min_Items, colCounts(movies) > min_Users], 
+    main = "Heatmap of the Top Users and Movies (Non-Normalized")
+```
+```{r}
+image(movie_Normalization[rowCounts(movie_Normalization) > min_Items, colCounts(movie_Normalization) > 
+    min_Users], main = "Heatmap of the Top Users and Movies (Normalized)")
+```
+
+
 ## Split training and test datasets.
 
-I will make a matrix of ones and zeros which will facilitate extracting the desired elements from the overall matrix.   
-
-#### Test dataset:
+Split the dataset into training set (80%) and testing set (20%).
 
 ```{r}
-### display UI_train
-#UI_train %>% kable(caption = "TRAINING MATRIX")%>%
-#  kable_styling(bootstrap_options = "striped", full_width = F)
+set.seed(10)
+train_set <- sample(x = c(TRUE, FALSE), size = nrow(movies), replace = TRUE, 
+    prob = c(0.8, 0.2))
 
-### display UI_test
-#UI_test %>% kable(caption = "TEST MATRIX")%>%
-#  kable_styling(bootstrap_options = "striped", full_width = F)
-
+movie_Train <- movies[train_set, ]
+movie_Test <- movies[!train_set, ]
 ```
 
 
-## Using your training data, calculate the raw average (mean) rating for every user-item combination.
+##Item-Item Collaborative Filtering
+
+I build an item-item collaborative filtering where I recommend movies to users where their item’s ratings are similar.
+
+Using your training data, let’s create a model using method `IBCF` .
 
 ```{r}
-
+IBCF_model <- Recommender(movie_Train, method = "IBCF")
 ```
 
 
-
-## Calculate the RMSE for raw average for both your training data and your test data.
-
 ```{r}
-
+### Recommendations using test set
+IBCF_pred <- predict(IBCF_model, newdata = movie_Test, n = 6)
 ```
 
 
-
-### Using your training data, calculate the bias for each user and each item.
+Now, Let’s extract recommenders
+Movie Ratings for first user
 
 ```{r}
+user1 <- as.data.frame(movie_Test@data[1, movie_Test@data[1, ] > 0])
+colnames(user1) <- c("Rating")
+user1[c("movieId")] <- as.integer(rownames(user1))
 
+data <- movie_data %>% inner_join(user1, by = "movieId") %>% select(Movie = "title", 
+    Rating) %>% arrange(desc(Rating))
+knitr::kable(data, format = "html") %>% kableExtra::kable_styling(bootstrap_options = c("striped", 
+    "hover"))
 ```
-
 
 ### From the raw average, and the appropriate user and item biases, calculate the baseline predictors for every user-item combination.
 
 ```{r}
+recommended <- IBCF_pred@itemLabels[IBCF_pred@items[[1]]]
+recommended <- as.data.frame(as.integer(recommended))
+colnames(recommended) <- c("movieId")
+data <- recommended %>% inner_join(movie_data, by = "movieId") %>% select(Movie = "title")
+knitr::kable(data, format = "html") %>% kableExtra::kable_styling(bootstrap_options = c("striped", 
+    "hover"))
 ```
 
+ 
+ 
+### User-User Collaborative Filtering
 
-
-## Calculate the RMSE for the baseline predictors for both your training data and your test data.
+Finally, I build a user-user collaborative filtering where I recommend movies to users based on how similar they are with other users.
 
 ```{r}
+UBCF_model <- Recommender(movie_Train, method = "UBCF")
+```
 
+####Recommendations using test set
+```{r}
+UBCF_pred <- predict(UBCF_model, newdata = movie_Test, n = 6)
+```
+
+Let us consider the first user and look at his/her recommendations. The first user gravitated towards more critically acclaimed dramas and these recommendations are among the best movies produced.
+
+```{r}
+# Recommendations for the first user
+UBCF_recommended <- UBCF_pred@itemLabels[UBCF_pred@items[[1]]]
+UBCF_recommended <- as.data.frame(as.integer(UBCF_recommended))
+colnames(UBCF_recommended) <- c("movieId")
+
+data <- UBCF_recommended %>% inner_join(movie_data, by = "movieId") %>% select(Movie = "title")
+knitr::kable(data, format = "html") %>% kableExtra::kable_styling(bootstrap_options = c("striped", 
+    "hover"))
+```
+
+#### Normalized 
+```{r}
+Normalized_model <- Recommender(movie_Train, method = "UBCF", parameter = list(normalize = NULL))
+Normalized_pred <- predict(Normalized_model, newdata = movie_Test, n = 6)
+recommended <- Normalized_pred@itemLabels[Normalized_pred@items[[1]]]
+recommended <- as.data.frame(as.integer(recommended))
+colnames(recommended) <- c("movieId")
+data <- recommended %>% inner_join(movie_data, by = "movieId") %>% select(Movie = "title")
+knitr::kable(data, format = "html") %>% kableExtra::kable_styling(bootstrap_options = c("striped", 
+    "hover"))
 ```
 
 
 ## Summary results.
-Lets calculate the percentage improvements based on the original (simple average) and baseline predictor (including bias) RMSE numbers for both Test and Train data sets.
+
+For both Item-Item and User-User collaborative filtering, the recommendations which the user got was almost similar. Movie ratings extracted for the first user consisted of action genre movies. Therefore it was interesting to see that the movies recommended to the same user also consisted of same genre movies.
 
 ```{r}
 
