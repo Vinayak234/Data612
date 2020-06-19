@@ -1,0 +1,176 @@
+---
+title: "Data 612 Project 2 - Content-Based and Collaborative Filtering"
+author: "Vinayak Patel"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+    highlight: tango
+    theme: united
+  pdf_document: default
+  word_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(tinytex.verbose = TRUE)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+if (!require("knitr")) install.packages("knitr")
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("kableExtra")) install.packages("kableExtra")
+if (!require("dplyr")) install.packages("dplyr")
+if (!require("Matrix")) install.packages("Matrix")
+if (!require("recommenderlab")) install.packages("recommenderlab")
+if (!require("gridExtra")) install.packages("gridExtra")
+if (!require("graphics")) install.packages("graphics")
+```
+
+<p>&nbsp;</p>
+
+## Introduction
+
+**For assignment 2, start with an existing dataset of user-item ratings, such as our toy books dataset, MovieLens, Jester [http://eigentaste.berkeley.edu/dataset/] or another dataset of your choosing. Implement at least two of these recommendation algorithms:**
+
+<span style="font-size:16px;"> 
+• Content-Based Filtering
+• User-User Collaborative Filtering
+• Item-Item Collaborative Filtering
+</span>
+
+**As an example of implementing a Content-Based recommender, you could build item profiles for a subset of MovieLens movies from scraping http://www.imdb.com/ or using the API at https://www.omdbapi.com/ (which has very recently instituted a small monthly fee). A more challenging method would be to pull movie summaries or reviews and apply tf-idf and/or topic modeling.**
+
+<span style="font-size:16px;"> You should evaluate and compare different approaches, using different algorithms, normalization techniques, similarity methods, neighborhood sizes, etc. You don’t need to be exhaustive—these are just some suggested possibilities.</span>
+
+
+<span style="font-size:16px;"> You may use the course text’s recommenderlab or any other library that you want.</span>
+
+## Data 
+
+**Load your data into (for example)** 
+<span style="font-size:16px;"> </span>
+<span style="font-size:16px;"> I use MovieLens small datasets: 100,000 ratings and 3,600 tag applications applied to 9,000 movies by 600 users. </span>
+
+```{r}
+ratings_data <- read.csv('ratings.csv', stringsAsFactors = F)
+movie_data <- read.csv('movies.csv', stringsAsFactors = F)
+```
+
+
+```{r echo=TRUE, paged.print=TRUE}
+#Load results
+head(ratings_data) %>% kable()%>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
+
+head(movie_data)%>% kable()%>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+
+```{r}
+### Structure
+str(ratings_data)
+str(movie_data)
+### Summary
+str(movie_data)
+summary(movie_data)
+```
+
+## Transform Data
+
+I use `realRatingMatrix` to transform data on Matrix value .
+
+```{r}
+#### use pivot_wider to make a user matrix
+ratings_data$userId <- as.factor(ratings_data$userId)
+movie_data$movieId <- as.factor(movie_data$movieId)
+ratings_data<-subset(ratings_data, select=-timestamp)
+
+UI <- as(ratings_data, "realRatingMatrix")
+str(UI)
+dim(UI@data)
+```
+
+#Users
+
+```{r}
+#Users
+similarity_users <- similarity(UI[1:10, ], method = "cosine", which = "userId")
+
+# The more red the cell is, the more similar two users are. 
+image(as.matrix(similarity_users), main="User Similarity (cosine)")
+```
+Items
+
+```{r}
+#Items
+similarity_items <- similarity(UI[,1:10], method = "cosine", which = "items")
+# The more red the cell is, the more similar two users are. 
+image(as.matrix(similarity_items), main="Items Similarity (cosine)")
+```
+
+## Split training and test datasets.
+
+I will make a matrix of ones and zeros which will facilitate extracting the desired elements from the overall matrix.   
+
+#### Test dataset:
+
+```{r}
+### display UI_train
+#UI_train %>% kable(caption = "TRAINING MATRIX")%>%
+#  kable_styling(bootstrap_options = "striped", full_width = F)
+
+### display UI_test
+#UI_test %>% kable(caption = "TEST MATRIX")%>%
+#  kable_styling(bootstrap_options = "striped", full_width = F)
+
+```
+
+
+## Using your training data, calculate the raw average (mean) rating for every user-item combination.
+
+```{r}
+
+```
+
+
+
+## Calculate the RMSE for raw average for both your training data and your test data.
+
+```{r}
+
+```
+
+
+
+### Using your training data, calculate the bias for each user and each item.
+
+```{r}
+
+```
+
+
+### From the raw average, and the appropriate user and item biases, calculate the baseline predictors for every user-item combination.
+
+```{r}
+```
+
+
+
+## Calculate the RMSE for the baseline predictors for both your training data and your test data.
+
+```{r}
+
+```
+
+
+## Summary results.
+Lets calculate the percentage improvements based on the original (simple average) and baseline predictor (including bias) RMSE numbers for both Test and Train data sets.
+
+```{r}
+
+```
+
