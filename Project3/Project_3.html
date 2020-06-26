@@ -12,7 +12,7 @@
 
 <meta name="author" content="Vinayak Patel" />
 
-<meta name="date" content="2020-06-25" />
+<meta name="date" content="2020-06-26" />
 
 <title>Data 612 Project 3 - Content-Based and Collaborative Filtering</title>
 
@@ -1707,7 +1707,7 @@ summary {
 
 <h1 class="title toc-ignore">Data 612 Project 3 - Content-Based and Collaborative Filtering</h1>
 <h4 class="author">Vinayak Patel</h4>
-<h4 class="date">2020-06-25</h4>
+<h4 class="date">2020-06-26</h4>
 
 </div>
 
@@ -1961,14 +1961,14 @@ Action|Crime|Thriller
 <h3>User-Based Collaborative Filtering</h3>
 <p>I build an User Based collaborative filtering Using your training data, let’s create a model using method <code>UBCF</code> .</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">tic</span>(<span class="st">&quot;UBCF Model - Training&quot;</span>)</a>
-<a class="sourceLine" id="cb8-2" title="2">modelUBCF &lt;-<span class="st"> </span><span class="kw">Recommender</span>(train, <span class="dt">method =</span> <span class="st">&quot;UBCF&quot;</span>, <span class="dt">parameter =</span> <span class="ot">NULL</span>)</a>
+<a class="sourceLine" id="cb8-2" title="2">UBCF_model &lt;-<span class="st"> </span><span class="kw">Recommender</span>(train, <span class="dt">method =</span> <span class="st">&quot;UBCF&quot;</span>, <span class="dt">parameter =</span> <span class="ot">NULL</span>)</a>
 <a class="sourceLine" id="cb8-3" title="3"><span class="kw">toc</span>(<span class="dt">log =</span> <span class="ot">TRUE</span>, <span class="dt">quiet =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb8-4" title="4"></a>
 <a class="sourceLine" id="cb8-5" title="5"><span class="kw">tic</span>(<span class="st">&quot;UBCF Model - Predicting&quot;</span>)</a>
-<a class="sourceLine" id="cb8-6" title="6">predUBCF &lt;-<span class="st"> </span><span class="kw">predict</span>(modelUBCF, <span class="dt">newdata =</span> known, <span class="dt">n =</span> <span class="dv">6</span> ,<span class="dt">type =</span> <span class="st">&quot;ratings&quot;</span>)</a>
+<a class="sourceLine" id="cb8-6" title="6">pred_UBCF &lt;-<span class="st"> </span><span class="kw">predict</span>(UBCF_model, <span class="dt">newdata =</span> known, <span class="dt">n =</span> <span class="dv">6</span> ,<span class="dt">type =</span> <span class="st">&quot;ratings&quot;</span>)</a>
 <a class="sourceLine" id="cb8-7" title="7"><span class="kw">toc</span>(<span class="dt">log =</span> <span class="ot">TRUE</span>, <span class="dt">quiet =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb8-8" title="8"></a>
-<a class="sourceLine" id="cb8-9" title="9">(accUBCF &lt;-<span class="st"> </span><span class="kw">calcPredictionAccuracy</span>(predUBCF, unknown))</a></code></pre></div>
+<a class="sourceLine" id="cb8-9" title="9">(accUBCF &lt;-<span class="st"> </span><span class="kw">calcPredictionAccuracy</span>(pred_UBCF, unknown))</a></code></pre></div>
 <pre><code>##      RMSE       MSE       MAE 
 ## 0.9269575 0.8592501 0.7216235</code></pre>
 </div>
@@ -1976,14 +1976,14 @@ Action|Crime|Thriller
 <h3>Singular Value Decomposition (SVD) Model</h3>
 <p><span style="font-size:18px;"> we will build a SVD Model in order to compare this model with UBCF Model </span></p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">tic</span>(<span class="st">&quot;SVD Model - Training&quot;</span>)</a>
-<a class="sourceLine" id="cb10-2" title="2">modelSVD &lt;-<span class="st"> </span><span class="kw">Recommender</span>(train, <span class="dt">method =</span> <span class="st">&quot;SVD&quot;</span>, <span class="dt">parameter =</span> <span class="kw">list</span>(<span class="dt">k =</span> <span class="dv">20</span>))</a>
+<a class="sourceLine" id="cb10-2" title="2">SVD_model &lt;-<span class="st"> </span><span class="kw">Recommender</span>(train, <span class="dt">method =</span> <span class="st">&quot;SVD&quot;</span>, <span class="dt">parameter =</span> <span class="kw">list</span>(<span class="dt">k =</span> <span class="dv">20</span>))</a>
 <a class="sourceLine" id="cb10-3" title="3"><span class="kw">toc</span>(<span class="dt">log =</span> <span class="ot">TRUE</span>, <span class="dt">quiet =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb10-4" title="4"></a>
 <a class="sourceLine" id="cb10-5" title="5"><span class="kw">tic</span>(<span class="st">&quot;SVD Model - Predicting&quot;</span>)</a>
-<a class="sourceLine" id="cb10-6" title="6">predSVD &lt;-<span class="st"> </span><span class="kw">predict</span>(modelSVD, <span class="dt">newdata =</span> known, <span class="dt">type =</span> <span class="st">&quot;ratings&quot;</span>)</a>
+<a class="sourceLine" id="cb10-6" title="6">pred_SVD &lt;-<span class="st"> </span><span class="kw">predict</span>(SVD_model, <span class="dt">newdata =</span> known, <span class="dt">type =</span> <span class="st">&quot;ratings&quot;</span>)</a>
 <a class="sourceLine" id="cb10-7" title="7"><span class="kw">toc</span>(<span class="dt">log =</span> <span class="ot">TRUE</span>, <span class="dt">quiet =</span> <span class="ot">TRUE</span>)</a>
 <a class="sourceLine" id="cb10-8" title="8"></a>
-<a class="sourceLine" id="cb10-9" title="9">( accSVD &lt;-<span class="st"> </span><span class="kw">calcPredictionAccuracy</span>(predSVD, unknown) )</a></code></pre></div>
+<a class="sourceLine" id="cb10-9" title="9">( accSVD &lt;-<span class="st"> </span><span class="kw">calcPredictionAccuracy</span>(pred_SVD, unknown) )</a></code></pre></div>
 <pre><code>##      RMSE       MSE       MAE 
 ## 0.9311356 0.8670135 0.7249104</code></pre>
 <p><span style="font-size:18px;"> To conclude, RMSE is very similar to the UBCF Model </span></p>
@@ -1991,63 +1991,18 @@ Action|Crime|Thriller
 </div>
 <div id="evaluation" class="section level2">
 <h2>Evaluation</h2>
-<div id="run-time" class="section level3">
-<h3>Run-time</h3>
-<p>One major difference between SVD and UBCF Model is their run-times.</p>
-<p>Let’s explore their log displays to individually analyze their run-time.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">log &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">unlist</span>(<span class="kw">tic.log</span>(<span class="dt">format =</span> <span class="ot">TRUE</span>)))</a>
-<a class="sourceLine" id="cb12-2" title="2"><span class="kw">colnames</span>(log) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Run Time&quot;</span>)</a>
-<a class="sourceLine" id="cb12-3" title="3">knitr<span class="op">::</span><span class="kw">kable</span>(log, <span class="dt">format =</span> <span class="st">&quot;html&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb12-4" title="4"><span class="st">  </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="st">&quot;striped&quot;</span>, <span class="dt">full_width =</span> F)</a></code></pre></div>
-<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Run Time
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-UBCF Model - Training: 0.02 sec elapsed
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-UBCF Model - Predicting: 5.73 sec elapsed
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-SVD Model - Training: 1.64 sec elapsed
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-SVD Model - Predicting: 0.61 sec elapsed
-</td>
-</tr>
-</tbody>
-</table>
-<p>As we can see from the log display of both the models:</p>
-<p>UBCF takes less time to build a model, but takes more resources making predictions while SVD model is the opposite - resource intensive to build a model, but quick to make predictions.</p>
-</div>
-</div>
-<div id="evaluation-1" class="section level2">
-<h2>Evaluation</h2>
 <p>Now let us evaluate our predictions by seeing the prediction matrix of a particular user.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">mov_rated &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(UI<span class="op">@</span>data[<span class="kw">c</span>(<span class="st">&quot;400&quot;</span>), ]) </a>
-<a class="sourceLine" id="cb13-2" title="2"><span class="kw">colnames</span>(mov_rated) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;rating&quot;</span>)</a>
-<a class="sourceLine" id="cb13-3" title="3">mov_rated<span class="op">$</span>movieId &lt;-<span class="st"> </span><span class="kw">as.integer</span>(<span class="kw">rownames</span>(mov_rated))</a>
-<a class="sourceLine" id="cb13-4" title="4"></a>
-<a class="sourceLine" id="cb13-5" title="5">mov_rated &lt;-<span class="st"> </span>mov_rated <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(rating <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb13-6" title="6"><span class="st">  </span><span class="kw">inner_join</span> (movie_data, <span class="dt">by=</span><span class="st">&quot;movieId&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-7" title="7"><span class="st">  </span><span class="kw">arrange</span>(rating) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-8" title="8"><span class="st">  </span><span class="kw">select</span>(<span class="dt">Movie =</span> <span class="st">&quot;title&quot;</span>, rating)</a>
-<a class="sourceLine" id="cb13-9" title="9">knitr<span class="op">::</span><span class="kw">kable</span>(mov_rated, <span class="dt">format =</span> <span class="st">&quot;html&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-10" title="10"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, <span class="st">&quot;hover&quot;</span>))</a></code></pre></div>
-<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">mov_rated &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(UI<span class="op">@</span>data[<span class="kw">c</span>(<span class="st">&quot;17&quot;</span>), ]) </a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="kw">colnames</span>(mov_rated) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;rating&quot;</span>)</a>
+<a class="sourceLine" id="cb12-3" title="3">mov_rated<span class="op">$</span>movieId &lt;-<span class="st"> </span><span class="kw">as.integer</span>(<span class="kw">rownames</span>(mov_rated))</a>
+<a class="sourceLine" id="cb12-4" title="4"></a>
+<a class="sourceLine" id="cb12-5" title="5">mov_rated &lt;-<span class="st"> </span>mov_rated <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(rating <span class="op">!=</span><span class="st"> </span><span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb12-6" title="6"><span class="st">  </span><span class="kw">inner_join</span> (movie_data, <span class="dt">by=</span><span class="st">&quot;movieId&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb12-7" title="7"><span class="st">  </span><span class="kw">arrange</span>(rating) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb12-8" title="8"><span class="st">  </span><span class="kw">select</span>(<span class="dt">Movie =</span> <span class="st">&quot;title&quot;</span>, rating)</a>
+<a class="sourceLine" id="cb12-9" title="9">knitr<span class="op">::</span><span class="kw">kable</span>(mov_rated, <span class="dt">format =</span> <span class="st">&quot;html&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb12-10" title="10"><span class="st">  </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, <span class="st">&quot;hover&quot;</span>), <span class="dt">full_width =</span> F)</a></code></pre></div>
+<table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -2061,23 +2016,175 @@ rating
 <tbody>
 <tr>
 <td style="text-align:left;">
-Spider-Man 3 (2007)
+Sling Blade (1996)
 </td>
 <td style="text-align:right;">
-2.5
+3.0
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Indiana Jones and the Kingdom of the Crystal Skull (2008)
+Donnie Brasco (1997)
 </td>
 <td style="text-align:right;">
-2.5
+3.0
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Back to the Future (1985)
+Mortal Kombat (1995)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Apollo 13 (1995)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LÃ©on: The Professional (a.k.a. The Professional) (LÃ©on) (1994)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Blade Runner (1982)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Singin’ in the Rain (1952)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Some Like It Hot (1959)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Days of Thunder (1990)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Princess Bride, The (1987)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Once Upon a Time in the West (C’era una volta il West) (1968)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Star Trek III: The Search for Spock (1984)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Seven Samurai (Shichinin no samurai) (1954)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ghostbusters II (1989)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Double Indemnity (1944)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mad Max (1979)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mystic River (2003)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+WALLÂ·E (2008)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wrestler, The (2008)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Exit Through the Gift Shop (2010)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fighter, The (2010)
+</td>
+<td style="text-align:right;">
+3.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Seven (a.k.a. Se7en) (1995)
 </td>
 <td style="text-align:right;">
 4.0
@@ -2085,7 +2192,7 @@ Back to the Future (1985)
 </tr>
 <tr>
 <td style="text-align:left;">
-Gladiator (2000)
+Taxi Driver (1976)
 </td>
 <td style="text-align:right;">
 4.0
@@ -2093,7 +2200,7 @@ Gladiator (2000)
 </tr>
 <tr>
 <td style="text-align:left;">
-Lord of the Rings: The Fellowship of the Ring, The (2001)
+Independence Day (a.k.a. ID4) (1996)
 </td>
 <td style="text-align:right;">
 4.0
@@ -2101,7 +2208,7 @@ Lord of the Rings: The Fellowship of the Ring, The (2001)
 </tr>
 <tr>
 <td style="text-align:left;">
-Lord of the Rings: The Return of the King, The (2003)
+Rear Window (1954)
 </td>
 <td style="text-align:right;">
 4.0
@@ -2109,7 +2216,7 @@ Lord of the Rings: The Return of the King, The (2003)
 </tr>
 <tr>
 <td style="text-align:left;">
-Lucky Number Slevin (2006)
+Die Hard (1988)
 </td>
 <td style="text-align:right;">
 4.0
@@ -2117,7 +2224,183 @@ Lucky Number Slevin (2006)
 </tr>
 <tr>
 <td style="text-align:left;">
-Pursuit of Happyness, The (2006)
+Reservoir Dogs (1992)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Doors, The (1991)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sting, The (1973)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chinatown (1974)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Shining, The (1980)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Stand by Me (1986)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Deer Hunter, The (1978)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Indiana Jones and the Last Crusade (1989)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Beavis and Butt-Head Do America (1996)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Labyrinth (1986)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Goonies, The (1985)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Untouchables, The (1987)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sixth Sense, The (1999)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Beauty (1999)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+White Men Can’t Jump (1992)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Outlaw Josey Wales, The (1976)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Memento (2000)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bill &amp; Ted’s Excellent Adventure (1989)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Professional, The (Le professionnel) (1981)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+My Neighbor Totoro (Tonari no Totoro) (1988)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Enter the Dragon (1973)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Old Boy (2003)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Batman Begins (2005)
 </td>
 <td style="text-align:right;">
 4.0
@@ -2133,7 +2416,7 @@ Departed, The (2006)
 </tr>
 <tr>
 <td style="text-align:left;">
-The Martian (2015)
+Inglourious Basterds (2009)
 </td>
 <td style="text-align:right;">
 4.0
@@ -2141,7 +2424,7 @@ The Martian (2015)
 </tr>
 <tr>
 <td style="text-align:left;">
-Logan (2017)
+Toy Story 3 (2010)
 </td>
 <td style="text-align:right;">
 4.0
@@ -2149,7 +2432,23 @@ Logan (2017)
 </tr>
 <tr>
 <td style="text-align:left;">
-Forrest Gump (1994)
+Social Network, The (2010)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+True Grit (2010)
+</td>
+<td style="text-align:right;">
+4.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Toy Story (1995)
 </td>
 <td style="text-align:right;">
 4.5
@@ -2157,7 +2456,7 @@ Forrest Gump (1994)
 </tr>
 <tr>
 <td style="text-align:left;">
-Blade Runner (1982)
+Usual Suspects, The (1995)
 </td>
 <td style="text-align:right;">
 4.5
@@ -2165,7 +2464,79 @@ Blade Runner (1982)
 </tr>
 <tr>
 <td style="text-align:left;">
-Die Hard (1988)
+Braveheart (1995)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Jurassic Park (1993)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Schindler’s List (1993)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Terminator 2: Judgment Day (1991)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dances with Wolves (1990)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Batman (1989)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Silence of the Lambs, The (1991)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb (1964)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Alice in Wonderland (1951)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Platoon (1986)
 </td>
 <td style="text-align:right;">
 4.5
@@ -2174,14 +2545,6 @@ Die Hard (1988)
 <tr>
 <td style="text-align:left;">
 One Flew Over the Cuckoo’s Nest (1975)
-</td>
-<td style="text-align:right;">
-4.5
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Princess Bride, The (1987)
 </td>
 <td style="text-align:right;">
 4.5
@@ -2213,7 +2576,7 @@ Godfather: Part II, The (1974)
 </tr>
 <tr>
 <td style="text-align:left;">
-Shining, The (1980)
+Full Metal Jacket (1987)
 </td>
 <td style="text-align:right;">
 4.5
@@ -2221,7 +2584,119 @@ Shining, The (1980)
 </tr>
 <tr>
 <td style="text-align:left;">
-Donnie Darko (2001)
+Raging Bull (1980)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Back to the Future (1985)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saving Private Ryan (1998)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American History X (1998)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Office Space (1999)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fight Club (1999)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Trading Places (1983)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Green Mile, The (1999)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+For a Few Dollars More (Per qualche dollaro in piÃ¹) (1965)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Requiem for a Dream (2000)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lord of the Rings: The Fellowship of the Ring, The (2001)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+City of God (Cidade de Deus) (2002)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lord of the Rings: The Return of the King, The (2003)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Howl’s Moving Castle (Hauru no ugoku shiro) (2004)
+</td>
+<td style="text-align:right;">
+4.5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pan’s Labyrinth (Laberinto del fauno, El) (2006)
 </td>
 <td style="text-align:right;">
 4.5
@@ -2237,7 +2712,7 @@ Dark Knight, The (2008)
 </tr>
 <tr>
 <td style="text-align:left;">
-How to Train Your Dragon (2010)
+Star Trek (2009)
 </td>
 <td style="text-align:right;">
 4.5
@@ -2245,55 +2720,15 @@ How to Train Your Dragon (2010)
 </tr>
 <tr>
 <td style="text-align:left;">
-Star Wars: Episode VII - The Force Awakens (2015)
+Inception (2010)
 </td>
 <td style="text-align:right;">
 4.5
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Arrival (2016)
-</td>
-<td style="text-align:right;">
-4.5
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Heat (1995)
-</td>
-<td style="text-align:right;">
-5.0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Seven (a.k.a. Se7en) (1995)
-</td>
-<td style="text-align:right;">
-5.0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Usual Suspects, The (1995)
-</td>
-<td style="text-align:right;">
-5.0
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
 Star Wars: Episode IV - A New Hope (1977)
-</td>
-<td style="text-align:right;">
-5.0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-LÃ©on: The Professional (a.k.a. The Professional) (LÃ©on) (1994)
 </td>
 <td style="text-align:right;">
 5.0
@@ -2317,23 +2752,7 @@ Shawshank Redemption, The (1994)
 </tr>
 <tr>
 <td style="text-align:left;">
-Silence of the Lambs, The (1991)
-</td>
-<td style="text-align:right;">
-5.0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Fargo (1996)
-</td>
-<td style="text-align:right;">
-5.0
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Trainspotting (1996)
+Forrest Gump (1994)
 </td>
 <td style="text-align:right;">
 5.0
@@ -2357,7 +2776,39 @@ Star Wars: Episode V - The Empire Strikes Back (1980)
 </tr>
 <tr>
 <td style="text-align:left;">
+Good, the Bad and the Ugly, The (Buono, il brutto, il cattivo, Il) (1966)
+</td>
+<td style="text-align:right;">
+5.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Clockwork Orange, A (1971)
+</td>
+<td style="text-align:right;">
+5.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 Star Wars: Episode VI - Return of the Jedi (1983)
+</td>
+<td style="text-align:right;">
+5.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Terminator, The (1984)
+</td>
+<td style="text-align:right;">
+5.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Big Lebowski, The (1998)
 </td>
 <td style="text-align:right;">
 5.0
@@ -2373,7 +2824,7 @@ Matrix, The (1999)
 </tr>
 <tr>
 <td style="text-align:left;">
-Fight Club (1999)
+Spirited Away (Sen to Chihiro no kamikakushi) (2001)
 </td>
 <td style="text-align:right;">
 5.0
@@ -2381,7 +2832,7 @@ Fight Club (1999)
 </tr>
 <tr>
 <td style="text-align:left;">
-Requiem for a Dream (2000)
+Lord of the Rings: The Two Towers, The (2002)
 </td>
 <td style="text-align:right;">
 5.0
@@ -2389,7 +2840,7 @@ Requiem for a Dream (2000)
 </tr>
 <tr>
 <td style="text-align:left;">
-Inside Man (2006)
+Laputa: Castle in the Sky (TenkÃ» no shiro Rapyuta) (1986)
 </td>
 <td style="text-align:right;">
 5.0
@@ -2397,7 +2848,7 @@ Inside Man (2006)
 </tr>
 <tr>
 <td style="text-align:left;">
-Inception (2010)
+NausicaÃ¤ of the Valley of the Wind (Kaze no tani no Naushika) (1984)
 </td>
 <td style="text-align:right;">
 5.0
@@ -2405,8 +2856,153 @@ Inception (2010)
 </tr>
 </tbody>
 </table>
-<p>Here, let’s see for user 400th ## Summary results.</p>
-<p>For both Item-Item and User-User collaborative filtering, the recommendations which the user got was almost similar. Movie ratings extracted for the first user consisted of action genre movies. Therefore it was interesting to see that the movies recommended to the same user also consisted of same genre movies.</p>
+<p>Here, let’s see for user 17th</p>
+<div id="ucbf-prediction" class="section level3">
+<h3>UCBF Prediction</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">UCBF_recommend &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(pred_UBCF<span class="op">@</span>data[<span class="dv">17</span>, ])</a>
+<a class="sourceLine" id="cb13-2" title="2"><span class="kw">colnames</span>(UCBF_recommend) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Rating&quot;</span>)</a>
+<a class="sourceLine" id="cb13-3" title="3">UCBF_recommend<span class="op">$</span>movieId &lt;-<span class="st"> </span><span class="kw">as.integer</span>(<span class="kw">rownames</span>(UCBF_recommend))</a>
+<a class="sourceLine" id="cb13-4" title="4">UCBF_recommend &lt;-<span class="st"> </span>UCBF_recommend <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(Rating)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>(<span class="dv">6</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb13-5" title="5"><span class="st">  </span><span class="kw">inner_join</span> (movie_data, <span class="dt">by=</span><span class="st">&quot;movieId&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb13-6" title="6"><span class="st">  </span><span class="kw">select</span>(<span class="dt">Movie =</span> <span class="st">&quot;title&quot;</span>)</a>
+<a class="sourceLine" id="cb13-7" title="7">knitr<span class="op">::</span><span class="kw">kable</span>(UCBF_recommend, <span class="dt">format =</span> <span class="st">&quot;html&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb13-8" title="8"><span class="st">  </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, <span class="st">&quot;hover&quot;</span>), <span class="dt">full_width =</span> F)</a></code></pre></div>
+<table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Movie
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Matrix, The (1999)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lord of the Rings: The Fellowship of the Ring, The (2001)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Shawshank Redemption, The (1994)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lord of the Rings: The Two Towers, The (2002)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Reservoir Dogs (1992)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Silence of the Lambs, The (1991)
+</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">SVD_recommend &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(pred_SVD<span class="op">@</span>data[<span class="dv">17</span>, ]) </a>
+<a class="sourceLine" id="cb14-2" title="2"><span class="kw">colnames</span>(SVD_recommend) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;rating&quot;</span>)</a>
+<a class="sourceLine" id="cb14-3" title="3">SVD_recommend<span class="op">$</span>movieId &lt;-<span class="st"> </span><span class="kw">as.integer</span>(<span class="kw">rownames</span>(SVD_recommend))</a>
+<a class="sourceLine" id="cb14-4" title="4">SVD_recommend &lt;-<span class="st"> </span>SVD_recommend <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(<span class="kw">desc</span>(rating)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>(<span class="dv">6</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb14-5" title="5"><span class="st">  </span><span class="kw">inner_join</span> (movie_data, <span class="dt">by=</span><span class="st">&quot;movieId&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb14-6" title="6"><span class="st">  </span><span class="kw">select</span>(<span class="dt">Movie =</span> <span class="st">&quot;title&quot;</span>)</a>
+<a class="sourceLine" id="cb14-7" title="7">knitr<span class="op">::</span><span class="kw">kable</span>(SVD_recommend, <span class="dt">format =</span> <span class="st">&quot;html&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb14-8" title="8"><span class="st">  </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, <span class="st">&quot;hover&quot;</span>), <span class="dt">full_width =</span> F)</a></code></pre></div>
+<table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Movie
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Terminator 2: Judgment Day (1991)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Matrix, The (1999)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Star Wars: Episode III - Revenge of the Sith (2005)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Star Wars: Episode II - Attack of the Clones (2002)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Star Wars: Episode VI - Return of the Jedi (1983)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Raiders of the Lost Ark (Indiana Jones and the Raiders of the Lost Ark) (1981)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="run-time" class="section level3">
+<h3>Run-time</h3>
+<p>One major difference between SVD and UBCF Model is their run-times.</p>
+<p>Let’s explore their log displays to individually analyze their run-time.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">log &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">unlist</span>(<span class="kw">tic.log</span>(<span class="dt">format =</span> <span class="ot">TRUE</span>)))</a>
+<a class="sourceLine" id="cb15-2" title="2"><span class="kw">colnames</span>(log) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Run Time&quot;</span>)</a>
+<a class="sourceLine" id="cb15-3" title="3">knitr<span class="op">::</span><span class="kw">kable</span>(log, <span class="dt">format =</span> <span class="st">&quot;html&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-4" title="4"><span class="st">  </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, <span class="st">&quot;hover&quot;</span>), <span class="dt">full_width =</span> F)</a></code></pre></div>
+<table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Run Time
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+UBCF Model - Training: 0.04 sec elapsed
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+UBCF Model - Predicting: 5.42 sec elapsed
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SVD Model - Training: 1.57 sec elapsed
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SVD Model - Predicting: 0.57 sec elapsed
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="summary-results." class="section level2">
+<h2>Summary results.</h2>
+<p>As we can see from the log display of both the models:</p>
+<p>UBCF takes less time to build a model, but takes more resources making predictions while SVD model is the opposite - resource intensive to build a model, but quick to make predictions.</p>
 </div>
 
 
