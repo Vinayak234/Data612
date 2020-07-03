@@ -1,0 +1,41 @@
+---
+title: 'Data 612: Final Proposal'
+author: "V Patel"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+    highlight: tango
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objective 
+
+<span style="font-size:16px;"> I am going to build an ALS based recommender system. ALS recommender is a matrix factorization algorithm in Collaborative Filtering that uses Alternating Least Squares </span>
+
+## Data
+
+<span style="font-size:16px;"> I use MovieLens full datasets: 25M movie ratings. Stable benchmark dataset. 25 million ratings and one million tag applications applied to 62,000 movies by 162,000 users. Includes tag genome data with 15 million relevance scores across 1,129 tags. Released 12/2019 </span>
+
+<span style="font-size:16px;">**Further Information About GroupLens**</span>
+
+<span style="font-size:16px;">GroupLens is a research group in the Department of Computer Science and Engineering at the University of Minnesota. Since its inception in 1992, GroupLens's research projects have explored a variety of fields including:</span>
+
+* recommender systems
+* online communities
+* mobile and ubiquitious technologies
+* digital libraries
+* local geographic information systems
+
+GroupLens Research operates a movie recommender based on collaborative filtering, MovieLens, which is the source of these data. We encourage you to visit http://movielens.org to try it out! If you have exciting ideas for experimental work to conduct on MovieLens, send us an email at grouplens-info@cs.umn.edu - we are always interested in working with external collaborators.
+
+## Results
+Determining the recommendation techniques which achieved highest accuracy.
+
+## Reference : 
+1. [MovieLens](http://movielens.org)
+2. [Prototyping a Recommender System Step by Step Part 2: Alternating Least Square (ALS) Matrix Factorization in Collaborative Filtering](https://towardsdatascience.com/prototyping-a-recommender-system-step-by-step-part-2-alternating-least-square-als-matrix-4a76c58714a1)
