@@ -1,0 +1,64 @@
+---
+title: "Data 612 Project 5 - Implementing a Recommender System on Spark"
+author: "Vinayak Patel"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+    highlight: tango
+    theme: united
+  pdf_document: default
+  word_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(tinytex.verbose = TRUE)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+```
+
+<p>&nbsp;</p>
+
+## Objective 
+
+![](que.PNG)
+![](que1.PNG)
+
+<span style="font-size:16px;"></span>
+
+## Data 
+
+### Load your data into (for example)** 
+<span style="font-size:16px;"> </span>
+<span style="font-size:16px;"> I used MovieLens small datasets: 100,000 ratings and 3,600 tag applications applied to 9,000 movies by 600 users. </span>
+
+```{r}
+
+ratings_data <- read.csv('ratings.csv', stringsAsFactors = F)
+movie_data <- read.csv('movies.csv', stringsAsFactors = F)
+```
+
+### Display your data
+```{r echo=TRUE, paged.print=TRUE}
+```
+
+### Transform Data
+
+I used `realRatingMatrix` from 'recommenderlab' to transform data.
+
+```{r Transform Data}
+
+
+```
+
+## Summary results.
+
+As we can see from the log display of both the models:
+
+UBCF takes less time to build a model, but takes more resources making predictions while SVD model is the opposite - resource intensive to build a model, but quick to make predictions.
+
+
