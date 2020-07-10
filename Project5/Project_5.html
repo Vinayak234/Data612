@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
 <meta name="author" content="Vinayak Patel" />
 
-<meta name="date" content="2020-07-09" />
+<meta name="date" content="2020-07-10" />
 
 <title>Data 612 Project 5 - Implementing a Recommender System on Spark</title>
 
@@ -1468,6 +1467,15 @@ window.onload = function() {
   PagedTableDoc.initAll();
 };
 </script>
+<script>$(document).ready(function(){
+    if (typeof $('[data-toggle="tooltip"]').tooltip === 'function') {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+    if ($('[data-toggle="popover"]').popover === 'function') {
+        $('[data-toggle="popover"]').popover();
+    }
+});
+</script>
 
 
 <style type="text/css">code{white-space: pre;}</style>
@@ -1665,6 +1673,7 @@ summary {
   border: none;
   display: inline-block;
   border-radius: 4px;
+  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -1698,11 +1707,19 @@ summary {
 
 <h1 class="title toc-ignore">Data 612 Project 5 - Implementing a Recommender System on Spark</h1>
 <h4 class="author">Vinayak Patel</h4>
-<h4 class="date">2020-07-09</h4>
+<h4 class="date">2020-07-10</h4>
 
 </div>
 
 
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="cf">if</span> (<span class="op">!</span><span class="kw">require</span>(<span class="st">&quot;knitr&quot;</span>)) <span class="kw">install.packages</span>(<span class="st">&quot;knitr&quot;</span>)</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="cf">if</span> (<span class="op">!</span><span class="kw">require</span>(<span class="st">&quot;tidyverse&quot;</span>)) <span class="kw">install.packages</span>(<span class="st">&quot;tidyverse&quot;</span>)</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="cf">if</span> (<span class="op">!</span><span class="kw">require</span>(<span class="st">&quot;kableExtra&quot;</span>)) <span class="kw">install.packages</span>(<span class="st">&quot;kableExtra&quot;</span>)</a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="cf">if</span> (<span class="op">!</span><span class="kw">require</span>(<span class="st">&quot;dplyr&quot;</span>)) <span class="kw">install.packages</span>(<span class="st">&quot;dplyr&quot;</span>)</a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="cf">if</span> (<span class="op">!</span><span class="kw">require</span>(<span class="st">&quot;ggrepel&quot;</span>)) <span class="kw">install.packages</span>(<span class="st">&quot;ggrepel&quot;</span>)</a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="cf">if</span> (<span class="op">!</span><span class="kw">require</span>(<span class="st">&quot;recommenderlab&quot;</span>)) <span class="kw">install.packages</span>(<span class="st">&quot;recommenderlab&quot;</span>)</a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="cf">if</span> (<span class="op">!</span><span class="kw">require</span>(<span class="st">&quot;tictoc&quot;</span>)) <span class="kw">install.packages</span>(<span class="st">&quot;tictoc&quot;</span>)</a>
+<a class="sourceLine" id="cb1-8" title="8"><span class="cf">if</span> (<span class="op">!</span><span class="kw">require</span>(<span class="st">&quot;sparklyr&quot;</span>)) <span class="kw">install.packages</span>(<span class="st">&quot;sparklyr&quot;</span>)</a></code></pre></div>
 <p>
  
 </p>
@@ -1716,21 +1733,314 @@ summary {
 <div id="load-your-data-into-for-example" class="section level3">
 <h3>Load your data into (for example)**</h3>
 <p><span style="font-size:16px;"> </span> <span style="font-size:16px;"> I used MovieLens small datasets: 100,000 ratings and 3,600 tag applications applied to 9,000 movies by 600 users. </span></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">ratings_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&#39;ratings.csv&#39;</span>, <span class="dt">stringsAsFactors =</span> F)</a>
-<a class="sourceLine" id="cb1-2" title="2">movie_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&#39;movies.csv&#39;</span>, <span class="dt">stringsAsFactors =</span> F)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">ratings_data &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&#39;ratings.csv&#39;</span>)</a>
+<a class="sourceLine" id="cb2-2" title="2">spark_data &lt;-<span class="st"> </span>ratings_data</a></code></pre></div>
 </div>
 <div id="display-your-data" class="section level3">
 <h3>Display your data</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">head</span>(ratings_data) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable</span>()<span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="st">  </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="st">&quot;striped&quot;</span>, <span class="dt">full_width =</span> F)</a></code></pre></div>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+userId
+</th>
+<th style="text-align:right;">
+movieId
+</th>
+<th style="text-align:right;">
+rating
+</th>
+<th style="text-align:right;">
+timestamp
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+964982703
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+964981247
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+964982224
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+47
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+964983815
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+964982931
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+70
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+964982400
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="transform-data" class="section level3">
 <h3>Transform Data</h3>
 <p>I used <code>realRatingMatrix</code> from ‘recommenderlab’ to transform data.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">ratings_data<span class="op">$</span>userId &lt;-<span class="st"> </span><span class="kw">as.factor</span>(ratings_data<span class="op">$</span>userId)</a>
+<a class="sourceLine" id="cb4-2" title="2"></a>
+<a class="sourceLine" id="cb4-3" title="3">UI &lt;-<span class="st"> </span><span class="kw">as</span>(ratings_data, <span class="st">&quot;realRatingMatrix&quot;</span>)</a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="kw">dim</span>(UI<span class="op">@</span>data)</a></code></pre></div>
+<pre><code>## [1]  610 9724</code></pre>
 </div>
+<div id="split-training-and-test-datasets." class="section level3">
+<h3>Split training and test datasets.</h3>
+<p>Split the dataset into training set (80%) and testing set (20%).</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">set.seed</span>(<span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb6-2" title="2">train_set &lt;-<span class="st"> </span><span class="kw">evaluationScheme</span>(UI, <span class="dt">method =</span> <span class="st">&quot;split&quot;</span>, <span class="dt">train =</span> <span class="fl">0.8</span>, <span class="dt">given =</span> <span class="dv">20</span>, <span class="dt">goodRating =</span> <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb6-3" title="3"></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="co">#Train</span></a>
+<a class="sourceLine" id="cb6-5" title="5">train &lt;-<span class="st"> </span><span class="kw">getData</span>(train_set, <span class="st">&quot;train&quot;</span>)</a>
+<a class="sourceLine" id="cb6-6" title="6"></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="co">#Known</span></a>
+<a class="sourceLine" id="cb6-8" title="8">known &lt;-<span class="st"> </span><span class="kw">getData</span>(train_set, <span class="st">&quot;known&quot;</span>)</a>
+<a class="sourceLine" id="cb6-9" title="9"></a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="co">#Unknown</span></a>
+<a class="sourceLine" id="cb6-11" title="11">unknown &lt;-<span class="st"> </span><span class="kw">getData</span>(train_set, <span class="st">&quot;unknown&quot;</span>)</a></code></pre></div>
+</div>
+</div>
+<div id="centralized-recommender-system---recommenderlab" class="section level2">
+<h2>Centralized Recommender System - <code>recommenderlab</code></h2>
+<p>I used <code>realRatingMatrix</code> from ‘recommenderlab’ to transform data.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="co">#dt1 &lt;- data.table(ratings_data, key = &quot;movieId&quot;) </span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="co">#dt2 &lt;- data.table(movie_data, key = &quot;movieId&quot;)</span></a>
+<a class="sourceLine" id="cb7-3" title="3"></a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="co">#ratings &lt;- dt1[dt2]</span></a>
+<a class="sourceLine" id="cb7-5" title="5"></a>
+<a class="sourceLine" id="cb7-6" title="6"><span class="co"># Training</span></a>
+<a class="sourceLine" id="cb7-7" title="7"><span class="kw">tic</span>(<span class="st">&#39;T-R&#39;</span>)</a>
+<a class="sourceLine" id="cb7-8" title="8">Recommenderlab_CRS_Model &lt;-<span class="st"> </span><span class="kw">Recommender</span>(train, <span class="dt">method =</span> <span class="st">&#39;ALS&#39;</span>)</a>
+<a class="sourceLine" id="cb7-9" title="9"></a>
+<a class="sourceLine" id="cb7-10" title="10">t &lt;-<span class="st"> </span><span class="kw">toc</span>(<span class="dt">quiet =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb7-11" title="11">train_time &lt;-<span class="st"> </span><span class="kw">round</span>(t<span class="op">$</span>toc <span class="op">-</span><span class="st"> </span>t<span class="op">$</span>tic, <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb7-12" title="12"></a>
+<a class="sourceLine" id="cb7-13" title="13"><span class="co"># Predicting</span></a>
+<a class="sourceLine" id="cb7-14" title="14"></a>
+<a class="sourceLine" id="cb7-15" title="15"><span class="kw">tic</span>(<span class="st">&#39;P-R&#39;</span>)</a>
+<a class="sourceLine" id="cb7-16" title="16"></a>
+<a class="sourceLine" id="cb7-17" title="17">Recommenderlab_CRS_Predict&lt;-<span class="st"> </span><span class="kw">predict</span>(Recommenderlab_CRS_Model, <span class="dt">newdata =</span> known, </a>
+<a class="sourceLine" id="cb7-18" title="18">                                     <span class="dt">type=</span><span class="st">&quot;ratings&quot;</span>)</a>
+<a class="sourceLine" id="cb7-19" title="19">t &lt;-<span class="st"> </span><span class="kw">toc</span>(<span class="dt">quiet =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb7-20" title="20"></a>
+<a class="sourceLine" id="cb7-21" title="21">predict_time &lt;-<span class="st"> </span><span class="kw">round</span>(t<span class="op">$</span>toc <span class="op">-</span><span class="st"> </span>t<span class="op">$</span>tic, <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb7-22" title="22"></a>
+<a class="sourceLine" id="cb7-23" title="23">(recclab_error &lt;-<span class="st"> </span><span class="kw">calcPredictionAccuracy</span>(Recommenderlab_CRS_Predict, unknown ))</a></code></pre></div>
+<pre><code>##      RMSE       MSE       MAE 
+## 0.9266040 0.8585949 0.7170423</code></pre>
+</div>
+<div id="distributed-recommender-system---sparkr" class="section level2">
+<h2>Distributed Recommender System - SparkR</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">set.seed</span>(<span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb9-2" title="2"></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="co"># connect to Spark locally</span></a>
+<a class="sourceLine" id="cb9-4" title="4">sc &lt;-<span class="st"> </span><span class="kw">spark_connect</span>(<span class="dt">master =</span> <span class="st">&quot;local&quot;</span>)</a>
+<a class="sourceLine" id="cb9-5" title="5"></a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="co"># Spark data processing</span></a>
+<a class="sourceLine" id="cb9-7" title="7"></a>
+<a class="sourceLine" id="cb9-8" title="8">training_records &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dt">x =</span> <span class="kw">c</span>(<span class="ot">TRUE</span>, <span class="ot">FALSE</span>), <span class="dt">size =</span> <span class="kw">nrow</span>(spark_data),<span class="dt">replace =</span> <span class="ot">TRUE</span>, <span class="dt">prob =</span> <span class="kw">c</span>(<span class="fl">0.8</span>, <span class="fl">0.2</span>))</a>
+<a class="sourceLine" id="cb9-9" title="9"></a>
+<a class="sourceLine" id="cb9-10" title="10">training &lt;-<span class="st"> </span>spark_data[training_records, ]</a>
+<a class="sourceLine" id="cb9-11" title="11">testing &lt;-<span class="st"> </span>spark_data[<span class="op">-</span>training_records, ]</a>
+<a class="sourceLine" id="cb9-12" title="12"></a>
+<a class="sourceLine" id="cb9-13" title="13"><span class="co">#  moving data frames to Spark</span></a>
+<a class="sourceLine" id="cb9-14" title="14">spark_training &lt;-<span class="st"> </span><span class="kw">sdf_copy_to</span>(sc, training, <span class="st">&quot;train_ratings&quot;</span>, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb9-15" title="15">spark_testing &lt;-<span class="st"> </span><span class="kw">sdf_copy_to</span>(sc, testing, <span class="st">&quot;test_ratings&quot;</span>, <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">tic</span>(<span class="st">&#39;T-S&#39;</span>)</a>
+<a class="sourceLine" id="cb10-2" title="2">sdf_als_model &lt;-<span class="st"> </span><span class="kw">ml_als</span>(spark_training, <span class="dt">max_iter =</span> <span class="dv">5</span>, <span class="dt">nonnegative =</span> <span class="ot">TRUE</span>, <span class="dt">rating_col =</span> <span class="st">&quot;rating&quot;</span>, <span class="dt">user_col =</span> <span class="st">&quot;userId&quot;</span>, <span class="dt">item_col =</span> <span class="st">&quot;movieId&quot;</span>)</a>
+<a class="sourceLine" id="cb10-3" title="3"></a>
+<a class="sourceLine" id="cb10-4" title="4">ts &lt;-<span class="st"> </span><span class="kw">toc</span>(<span class="dt">quiet =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb10-5" title="5"></a>
+<a class="sourceLine" id="cb10-6" title="6">trainingTime_spark &lt;-<span class="st"> </span><span class="kw">round</span>(ts<span class="op">$</span>toc <span class="op">-</span><span class="st"> </span>ts<span class="op">$</span>tic, <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb10-7" title="7"><span class="co"># make prediction</span></a>
+<a class="sourceLine" id="cb10-8" title="8"></a>
+<a class="sourceLine" id="cb10-9" title="9"><span class="kw">tic</span>(<span class="st">&#39;P-S&#39;</span>)</a>
+<a class="sourceLine" id="cb10-10" title="10">prediction &lt;-<span class="st"> </span><span class="kw">ml_transform</span>(sdf_als_model, spark_testing) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">collect</span>()</a>
+<a class="sourceLine" id="cb10-11" title="11"></a>
+<a class="sourceLine" id="cb10-12" title="12">ps &lt;-<span class="st"> </span><span class="kw">toc</span>(<span class="dt">quiet =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb10-13" title="13"></a>
+<a class="sourceLine" id="cb10-14" title="14">predictionTime_spark &lt;-<span class="st">  </span><span class="kw">round</span>(ps<span class="op">$</span>toc <span class="op">-</span><span class="st"> </span>ps<span class="op">$</span>tic, <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb10-15" title="15"><span class="co"># here are our top 10 movies we recommend for each user</span></a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">spark_mse &lt;-<span class="st"> </span><span class="kw">mean</span>((prediction<span class="op">$</span>rating <span class="op">-</span><span class="st"> </span>prediction<span class="op">$</span>prediction)<span class="op">^</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb11-2" title="2">spark_rmse &lt;-<span class="st"> </span><span class="kw">sqrt</span>(spark_mse)</a>
+<a class="sourceLine" id="cb11-3" title="3">spark_mae &lt;-<span class="st"> </span><span class="kw">mean</span>(<span class="kw">abs</span>(prediction<span class="op">$</span>rating <span class="op">-</span><span class="st"> </span>prediction<span class="op">$</span>prediction))</a>
+<a class="sourceLine" id="cb11-4" title="4"></a>
+<a class="sourceLine" id="cb11-5" title="5"></a>
+<a class="sourceLine" id="cb11-6" title="6">sparklyr_error &lt;-<span class="st"> </span><span class="kw">c</span>(</a>
+<a class="sourceLine" id="cb11-7" title="7">  <span class="st">&quot;RMSE&quot;</span> =<span class="st"> </span><span class="kw">RMSE</span>(prediction<span class="op">$</span>rating, prediction<span class="op">$</span>prediction),</a>
+<a class="sourceLine" id="cb11-8" title="8">  <span class="st">&quot;MSE&quot;</span> =<span class="st"> </span><span class="kw">MSE</span>(prediction<span class="op">$</span>rating, prediction<span class="op">$</span>prediction),</a>
+<a class="sourceLine" id="cb11-9" title="9">  <span class="st">&quot;MAE&quot;</span> =<span class="st"> </span><span class="kw">MAE</span>(prediction<span class="op">$</span>rating, prediction<span class="op">$</span>prediction))</a>
+<a class="sourceLine" id="cb11-10" title="10"></a>
+<a class="sourceLine" id="cb11-11" title="11">comparison &lt;-<span class="st"> </span><span class="kw">rbind</span>(recclab_error, sparklyr_error)</a>
+<a class="sourceLine" id="cb11-12" title="12"><span class="kw">rownames</span>(comparison) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Centralized System&quot;</span>, <span class="st">&quot;Distributed System&quot;</span>)</a>
+<a class="sourceLine" id="cb11-13" title="13"></a>
+<a class="sourceLine" id="cb11-14" title="14"><span class="kw">kable</span>(comparison) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>(<span class="st">&quot;striped&quot;</span>, <span class="dt">full_width =</span> F)</a></code></pre></div>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+RMSE
+</th>
+<th style="text-align:right;">
+MSE
+</th>
+<th style="text-align:right;">
+MAE
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Centralized System
+</td>
+<td style="text-align:right;">
+0.9266040
+</td>
+<td style="text-align:right;">
+0.8585949
+</td>
+<td style="text-align:right;">
+0.7170423
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Distributed System
+</td>
+<td style="text-align:right;">
+0.6656635
+</td>
+<td style="text-align:right;">
+0.4431079
+</td>
+<td style="text-align:right;">
+0.4978245
+</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">comparison1 &lt;-<span class="st"> </span><span class="kw">cbind</span>(train_time, predict_time)</a>
+<a class="sourceLine" id="cb12-2" title="2">comparison2 &lt;-<span class="st"> </span><span class="kw">cbind</span>(trainingTime_spark, predictionTime_spark)</a>
+<a class="sourceLine" id="cb12-3" title="3"></a>
+<a class="sourceLine" id="cb12-4" title="4">comparison_time &lt;-<span class="st"> </span><span class="kw">rbind</span>(comparison1, comparison2)</a>
+<a class="sourceLine" id="cb12-5" title="5"><span class="kw">rownames</span>(comparison_time) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Centralized System&quot;</span>, <span class="st">&quot;Distributed System&quot;</span>)</a>
+<a class="sourceLine" id="cb12-6" title="6"><span class="kw">colnames</span>(comparison_time) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;train_time&quot;</span>, <span class="st">&quot;predict_time&quot;</span>)</a>
+<a class="sourceLine" id="cb12-7" title="7"></a>
+<a class="sourceLine" id="cb12-8" title="8"><span class="kw">kable</span>(comparison_time) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">kable_styling</span>(<span class="st">&quot;striped&quot;</span>, <span class="dt">full_width =</span> F)</a></code></pre></div>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+train_time
+</th>
+<th style="text-align:right;">
+predict_time
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Centralized System
+</td>
+<td style="text-align:right;">
+0.02
+</td>
+<td style="text-align:right;">
+225.89
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Distributed System
+</td>
+<td style="text-align:right;">
+5.63
+</td>
+<td style="text-align:right;">
+3.19
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="summary-results." class="section level2">
 <h2>Summary results.</h2>
-<p>As we can see from the log display of both the models:</p>
-<p>UBCF takes less time to build a model, but takes more resources making predictions while SVD model is the opposite - resource intensive to build a model, but quick to make predictions.</p>
 </div>
 
 
