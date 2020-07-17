@@ -1,0 +1,299 @@
+---
+title: 'Data 612: Final'
+author: "V Patel"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    df_print: paged
+    highlight: tango
+    theme: united
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load the required libraries
+```{r message=FALSE, warning=FALSE}
+#load library
+if (!require("knitr")) install.packages("knitr")
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("kableExtra")) install.packages("kableExtra")
+if (!require("dplyr")) install.packages("dplyr")
+if (!require("Matrix")) install.packages("Matrix")
+if (!require("recommenderlab")) install.packages("recommenderlab")
+if (!require("data.table")) install.packages("data.table")
+if (!require("graphics")) install.packages("graphics")
+if (!require("sparklyr")) install.packages("sparklyr")
+if (!require("rvest")) install.packages("rvest")
+if (!require("XML")) install.packages("XML")
+
+```
+
+## Objective 
+
+<span style="font-size:16px;"> I am going to build an ALS based recommender system. ALS recommender is a matrix factorization algorithm in Collaborative Filtering that uses Spark </span>
+
+## Data Exploration
+
+### Overview of Data
+
+<span style="font-size:16px;"> I use MovieLens full datasets: 10M movie ratings. Stable benchmark dataset. 10 million ratings and one million tag applications applied to 10,677 movies by 69,878 users. Includes tag genome data with 15 million relevance scores across 1,129 tags. Released 12/2019 </span>
+
+<span style="font-size:16px;">**Further Information About GroupLens**</span>
+
+<span style="font-size:16px;">GroupLens is a research group in the Department of Computer Science and Engineering at the University of Minnesota. Since its inception in 1992, GroupLens's research projects have explored a variety of fields including:</span>
+
+* recommender systems
+* online communities
+* mobile and ubiquitious technologies
+* digital libraries
+* local geographic information systems
+
+GroupLens Research operates a movie recommender based on collaborative filtering, MovieLens, which is the source of these data. We encourage you to visit http://movielens.org to try it out! If you have exciting ideas for experimental work to conduct on MovieLens, send us an email at grouplens-info@cs.umn.edu - we are always interested in working with external collaborators.
+
+### Import Data
+
+```{r import, warning=FALSE}
+movie_data <- read.csv('movies.csv', stringsAsFactors = F)
+links_data <- read.csv('links.csv', stringsAsFactors = F)
+ratings_data <- read.csv('ratings.csv', stringsAsFactors = F)
+
+ratings_data<- ratings_data[-4]
+spark_data <- as.data.frame(ratings_data)
+
+```
+
+### View Data
+
+```{r echo=TRUE, paged.print=TRUE}
+#Load results
+head(ratings_data) %>% kable()%>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
+
+head(movie_data)%>% kable()%>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
+
+head(links_data)%>% kable()%>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+<span style="font-size:16px;"> Total number of unique user in dataset is **`r length(unique(ratings_data$userId))`** 
+<br>
+Total number of Movie rated in dataset is **`r length(unique(ratings_data$movieId))`**
+<br>
+Total number of ratings in dataset is **`r nrow(ratings_data)`**
+</span>
+
+
+## Data Preparation
+
+### filter Data
+
+Here, I have removed users who rated less than 100 movies
+```{r}
+spark_data1 <- spark_data%>%
+  group_by(userId) %>% mutate(count = n()) %>%
+  filter(count >= 100)
+spark_data <- spark_data1[,-4]
+str(as.data.frame(spark_data))
+```
+
+Here, I have removed movies who have less than 100 ratings
+```{r}
+spark_data2 <- spark_data%>%
+  group_by(movieId) %>% mutate(count = n()) %>%
+  filter(count >= 100)
+spark_data <- spark_data2[,-4]
+str(as.data.frame(spark_data))
+```
+
+### Transform Data 
+
+I use `realRatingMatrix` to convert the above format into a table with 69878 rows and 10677 columns.
+
+```{r}
+#### use realRatingMatrix to make a user matrix
+ratings_data$userId <- as.factor(ratings_data$userId)
+
+UI <- as(ratings_data, "realRatingMatrix")
+dim(UI@data)
+```
+
+<span style="font-size:16px;"> Total number of unique user in dataset is **`r length(unique(ratings_data$userId))`** 
+<br>
+Total number of Movie rated in dataset is **`r length(unique(ratings_data$movieId))`**
+</span>
+
+
+
+
+
+## Building the Recommendation Model - SparkR
+
+### Splitting data 
+
+Split the dataset into training set (80%) and testing set (20%).
+```{r}
+set.seed(10)
+
+training_records <- sample(x = c(TRUE, FALSE), size = nrow(spark_data),replace = TRUE, prob = c(0.8, 0.2))
+
+training <- spark_data[training_records, ]
+testing <- spark_data[!training_records, ]
+```
+
+### Setup Spark local Connection
+```{r}
+# connect to Spark locally
+sc <- spark_connect(master = "local")
+
+
+#  moving data frames to Spark
+spark_training <- sdf_copy_to(sc, training, "train_ratings", overwrite = TRUE)
+spark_testing <- sdf_copy_to(sc, testing, "test_ratings", overwrite = TRUE)
+
+```
+
+### Modeling with Spark
+```{r}
+sdf_als_model <- ml_als(spark_training, max_iter = 5, nonnegative = TRUE, rating_col = "rating", user_col = "userId", item_col = "movieId")
+```
+
+### Prediction
+```{r}
+# make prediction
+prediction <- ml_transform(sdf_als_model, spark_testing) %>% collect()
+```
+
+### Metrics
+```{r}
+spark_mse <- mean((prediction$rating - prediction$prediction)^2)
+spark_rmse <- sqrt(spark_mse)
+spark_mae <- mean(abs(prediction$rating - prediction$prediction))
+
+sparklyr_error <- c(
+  "RMSE" = RMSE(prediction$rating, prediction$prediction),
+  "MSE" = MSE(prediction$rating, prediction$prediction),
+  "MAE" = MAE(prediction$rating, prediction$prediction))
+
+sparklyr_error
+```
+
+### Display Top 5 Recommendtion per user 
+```{r}
+recommended_list <- ml_recommend(sdf_als_model, type = 'item', 5) %>%
+  select(userId, movieId) %>%
+  group_by(userId) %>%
+  mutate(rank = rank(movieId)) %>%
+  mutate(rank = paste('Recommendation', rank %>% as.character())) %>%
+  collect() %>%
+  spread(key = rank, value = movieId) %>%
+  arrange(userId) 
+
+recommended_list%>%
+  kable()%>%
+  kable_styling(bootstrap_options = "striped", full_width = F) %>%
+  scroll_box(height = '300px')
+```
+
+
+## Web Scrapping (IMDB)
+
+### Preparation 
+
+Here, I am adding leading Zero to imdbId because imdb static links have id which leading zeros if ImdbID is less than 7 digits.
+
+```{r}
+url<- "https://www.imdb.com/title/tt"
+links_data$imdbId <- sprintf("%07d",links_data$imdbId)
+```
+
+
+### Function to Scrap Poster
+```{r}
+get_recommendation <- function(user){
+
+#it will generate data.frame for selected user  
+samp2 <- recommended_list[user,]
+
+
+list<- samp2 %>% remove_rownames %>% column_to_rownames(var="userId")
+
+list<- t(list)
+colnames(list) <- "movieId"
+
+# Assigning Keys to Merge table
+df1 <- data.table(list, key = "movieId") 
+df2 <- data.table(links_data, key = "movieId")
+
+recommended_table <- as.data.frame(merge(x = df1, y = df2, by = "movieId", all.x = TRUE))
+
+dataFrame<- recommended_table
+
+#loop for generate static url for recommededed movie
+for(i in 1:nrow(dataFrame)) {
+    row <- as.list(dataFrame[i,])
+    dataFrame$link <- url
+    dataFrame$link <- paste0(dataFrame$link,dataFrame$imdbId)
+}
+
+# loop for will go to link and look for poster
+for(i in 1:nrow(dataFrame)) {
+    row1 <- dataFrame[i,4]
+    print(row1)
+    webpage1 <- html_session(row1)
+    link.titles <- webpage1 %>% 
+      html_nodes(xpath = '//img')
+    img.url <- link.titles[3] %>% html_attr("src")
+    lsd<-paste("test",i,".jpg", sep="")
+    download.file(img.url, lsd,  mode = "wb")
+}
+
+# to merge with movie table for name
+df3 <- data.table(movie_data, key = "movieId")
+
+recommended_table<- as.data.frame(merge(x = recommended_table, y = df3, by = "movieId", all.x = TRUE))
+recommended_table %>% kable()%>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
+}
+
+```
+
+### execute function with `userid` to get recommended list and poster
+```{r}
+get_recommendation(4000)
+```
+
+### Posters
+
+<table border="1" cellpadding="10">
+<tbody>
+<tr>
+<td>&nbsp;![](test1.jpg)</td>
+<td>&nbsp;![](test2.jpg)</td>
+<td>&nbsp;![](test3.jpg)</td>
+<td>&nbsp;![](test4.jpg)</td>
+<td>&nbsp;![](test5.jpg)</td>
+</tr>
+</tbody>
+</table>
+
+
+### Disconnect Spark
+```{r}
+spark_disconnect(sc)
+```
+
+## Conclusion 
+In this final Project, it was hard to work with large datasets, but Distributed system like Spark helps to provide recommendations. Overall, it was fun to work with new tool in the short period of time. 
+
+## Future take away
+I would like to work on this project further and create a web application which give user option to select movies and rate them and based on that ratings provide recommendation
+
+## Reference : 
+1. [MovieLens](http://movielens.org)
+2. [Prototyping a Recommender System Step by Step Part 2: Alternating Least Square (ALS) Matrix Factorization in Collaborative Filtering](https://towardsdatascience.com/prototyping-a-recommender-system-step-by-step-part-2-alternating-least-square-als-matrix-4a76c58714a1)
