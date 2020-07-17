@@ -1,0 +1,80 @@
+---
+title: "Discussion:1 Commercial Recommender: YouTube"
+author: "VPatel"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+    highlight: tango
+    theme: united
+  pdf_document: default
+  word_document: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question:  
+
+<span style="font-size:16px;"> Please complete the research discussion assignment in a Jupyter or R Markdown notebook. You should post the GitHub link to your research in a new discussion thread. 
+<br>
+<br>
+Now that we have covered basic techniques for recommender systems, choose one commercial recommender and describe how you think it works (content-based, collaborative filtering, etc). Does the technique deliver a good experience or are the recommendations off-target?
+<br>
+<br>
+You may also choose one of the three non-personalized recommenders (below) we went over in class and describe the technique and which of the three you prefer to use. </span>
+<br>
+<br>
+
+<span style="font-size:16px;">
+1. Metacritic:  How We Create the Metascore Magic
+<br>
+2. Rotten Tomatoes: About Rotten Tomatoes
+<br>
+3. IMDB: FAQ for IMDb Ratings
+<br>
+<br>
+Please complete the research discussion assignment in a Jupyter or R Markdown notebook. You should post the GitHub link to your research in a new discussion thread.
+Attacks on Recommender System
+<br>
+<br>
+Read the article below and consider how to handle attacks on recommender systems. Can you think of a similar example where a collective effort to alter the workings of content recommendations have been successful? How would you design a system to prevent this kind of abuse?
+<br>
+<br>
+Travis M. Andrews, The Washington Post (2017): Wisdom of the crowd? IMDb users gang up on Christian Bale’s new movie before it even opens.
+<br>
+<br>
+Please make your post before our meetup on Thursday, and respond to at least one other student's posts by our meetup on Tuesday. 
+</span>
+
+## Discussion:
+
+<span style="font-size:16px;">
+YouTube’s recommendation system is one of the most sophisticated recommendation systems in the industry.  In 2016, Covington, Adams, and Sargin demonstrated the benefits of this approach with “Deep Neural Networks for YouTube Recommendations”, making Google one of the first companies to deploy production-level deep neural networks for recommender systems. By using TensorFlow one can experiment with different deep neural network architectures using distributed training. The system consists of two neural networks. The first one, candidate generation, takes as input user’s watch history and using collaborative filtering selects videos in the range of hundreds. 
+<br>
+<br>
+An important distinction between development and final deployment to production is that during development Google uses offline metrics for the performance of algorithms but the final decision comes from live A/B testing between the best performing algorithms. Candidate generation uses the implicit feedback of video watches by users to train the model. Explicit feedback such as a thumbs up or a thumbs down of a video are in general rare compared to implicit and this is an even bigger issue with long-tail videos that are not popular. 
+</span>
+
+<span style="font-size:16px;">
+The second neural network is used for Ranking the few hundreds of videos in order. This is much simpler as a problem to candidate generation as the number of videos is smaller and more information is available for each video and its relationship with the user. This system uses logistic regression to score each video and then A/B testing is continuously used for further improvement. The metric used here is expected watch time, as expected click can promote clickbait. To train it on watch time rather than clickthrough rate, the system uses a weighted variation of logistic regression with watch time as the weight for positive interactions and a unit weight for negative ones. This works out partly because the fraction of positive impressions is small compared to total.
+</span>
+
+<span style="font-size:16px;">
+Attack to recommendation is not uncommon. Some diehard movie star’s fan usually creates fake profile to rate to rate positive or negative movie review. This is hurt recommend system because usually algorithm can predict biased reviews if this action performed occasionally. However, what if a group of people were paid to promote movie, by creating multiple fake profiles with multiple reviews on the other movies, that is called an attack to recommendation system. 
+One way to prevent these attacks on Recommender system is to design the system algorithm that can detect these attacks easily and effectively. Attack can be detected base on the location who trying to influence recommend system.</span>
+
+## References
+
+1) [How YouTube Recommends Videos](https://towardsdatascience.com/how-youtube-recommends-videos-b6e003a5ab2f)
+
+2) [YouTube engineers analyzed in greater detail the inner workings of YouTube’s recommendation algorithm](http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45530.pdf)
+
+
+
+
+
+
+
+
+
