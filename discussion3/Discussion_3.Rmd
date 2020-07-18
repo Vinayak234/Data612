@@ -1,0 +1,42 @@
+---
+title: "Discussion:3 Ethics Recommendations"
+author: "VPatel"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+    highlight: tango
+    theme: united
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question: 
+
+
+<span style="font-size:16px;">As more systems and sectors are driven by predictive analytics, there is increasing awareness of the possibility and pitfalls of algorithmic discrimination. In what ways do you think Recommender Systems reinforce human bias? Reflecting on the techniques we have covered, do you think recommender systems reinforce or help to prevent unethical targeting or customer segmentation?  Please provide one or more examples to support your arguments.</span>
+
+## Discussion:
+
+
+<span style="font-size:16px;">As Evan Estola mention in the video, Recommendation Recommendations algorithm can be bias towards certain race or gender. in the video he pointed out algorithms from big companies like Google and Facebook are found guilty of doing this. Nowadays, a recommendation can decide what you be like what you supposed to read, what you supposed to buy and what job to apply. This can be dangerous if certain recommendation system is biased.As consequences it can polarize you to amplified conspiracy theories, fake news, mislead information.</span>
+
+
+<span style="font-size:16px;">In the video, he mentions it certain solutions to minimize the damage </span>
+
+
+<span style="font-size:20px;">**Ethics.**</span>
+
+
+<span style="font-size:16px;">The recommendation can an impact on what people choose so data scientist needs think about the ethics. Algorithm needs to sensitive before recommendation displayed to users. it needs to involves creating a visible list of “Do Not Amplify” topics in line with the platform’s values. </span>
+
+
+<span style="font-size:20px;">**Control**
+<br>
+<br>
+User need more control to select and deselect recommandtion of topic, ads, etc. User should hold the power to select what they will served. </span>
+
