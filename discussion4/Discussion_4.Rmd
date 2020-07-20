@@ -1,0 +1,33 @@
+---
+title: "Discussion 4: Mitigating the Harm of Recommender Systems"
+author: "VPatel"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+    highlight: tango
+    theme: united
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question:  
+
+<span style="font-size:16px;"> Read one or more of the articles below and consider how to counter the radicalizing effects of recommender systems or ways to prevent algorithmic discrimination. 
+<br>
+[Up Next: A Better Recommendation System](https://www.wired.com/story/creating-ethical-recommendation-engines/)
+<br>
+[YouTube, the Great Radicalizer](https://www.nytimes.com/2018/03/10/opinion/sunday/youtube-politics-radical.html)
+<br>
+[Social Influence Bias in Recommender Systems: A Methodology for Learning, Analyzing, and Mitigating Bias in Ratings](https://goldberg.berkeley.edu/pubs/sanjay-recsys-v10.pdf) </span>
+
+
+
+## Discussion:
+
+<span style="font-size:16px;">This can be dangerous if certain recommendation system is biased.As consequences it can polarize you to amplified conspiracy theories, fake news, mislead information. According to artical, Social Influence Bias in Recommender Systems, Social influence bias can be significant in recommender systems and that this bias can be substantially reduced with machine learning. To apply this methodology to other recommender systems, a key question for future work is how to extend the approach to large item inventories and how much training data is required in such cases. One idea is to cluster/classify items into a small number of representative categories and train a model for each category. According to Algorithmic bias detection and mitigation, Algorithms are harnessing volumes of macro- and micro-data to influence decisions affecting people in a range of tasks, from making movie recommendations to helping banks determine the creditworthiness of individuals.</span>
+
